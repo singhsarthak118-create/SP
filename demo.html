@@ -1,0 +1,219 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Calculator</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .calculator {
+            background: #222;
+            padding: 10px;
+            border-radius: 15px;
+            width: 280px;
+        }
+
+        #display {
+            width: 100%;
+            height: 55px;
+            box-sizing: border-box;
+            margin-bottom: 25px;
+            font-size: 28px;
+            text-align: right;
+            padding: 10px;
+            border: none;
+            border-radius: 50px;
+            background: #eee;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            height: 55px;
+            font-size: 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: hsl(205, 11%, 55%);
+            color: white;
+        }
+
+        button:hover {
+            background: #666;
+        }
+
+        .operator {
+            background: #ff9500;
+        }
+
+        .clear {
+            background: #e53935;
+        }
+
+        .equal {
+            background: #2196f3;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="calculator">
+        <input type="text" id="display" value="0" readonly>
+
+        <div class="buttons">
+            <button class="clear" onclick="clearDisplay()">C</button>
+            <button onclick="deleteLast()">DEL</button>
+            <button class="operator" onclick="chooseOperator('%')">%</button>
+            <button class="operator" onclick="chooseOperator('/')">÷</button>
+
+            <button onclick="appendNumber('7')">7</button>
+            <button onclick="appendNumber('8')">8</button>
+            <button onclick="appendNumber('9')">9</button>
+            <button class="operator" onclick="chooseOperator('*')">×</button>
+
+            <button onclick="appendNumber('4')">4</button>
+            <button onclick="appendNumber('5')">5</button>
+            <button onclick="appendNumber('6')">6</button>
+            <button class="operator" onclick="chooseOperator('-')">−</button>
+
+            <button onclick="appendNumber('1')">1</button>
+            <button onclick="appendNumber('2')">2</button>
+            <button onclick="appendNumber('3')">3</button>
+            <button class="operator" onclick="chooseOperator('+')">+</button>
+
+            <button onclick="appendNumber('0')">0</button>
+            <button onclick="appendDecimal()">.</button>
+            <button onclick="toggleSign()">±</button>
+            <button class="equal" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <script>
+        const display = document.getElementById("display");
+
+        let current = "0";
+        let previous = null;
+        let operator = null;
+        let resetDisplay = false;
+
+        function updateDisplay() {
+            display.value = current;
+        }
+
+        function appendNumber(number) {
+            if (resetDisplay || current === "Error") {
+                current = number;
+                resetDisplay = false;
+            } else {
+                current = current === "0"
+                    ? number
+                    : current + number;
+            }
+            updateDisplay();
+        }
+
+        function appendDecimal() {
+            if (resetDisplay || current === "Error") {
+                current = "0";
+                resetDisplay = false;
+            }
+
+            if (!current.includes(".")) {
+                current += ".";
+            }
+            updateDisplay();
+        }
+
+        function chooseOperator(op) {
+            if (current === "Error") return;
+
+            if (operator !== null && !resetDisplay) {
+                calculate();
+            }
+
+            previous = Number(current);
+            operator = op;
+            resetDisplay = true;
+        }
+
+        function calculate() {
+            if (operator === null || previous === null) return;
+
+            const a = previous;
+            const b = Number(current);
+            let result;
+
+            switch (operator) {
+                case "+":
+                    result = a + b;
+                    break;
+                case "-":
+                    result = a - b;
+                    break;
+                case "*":
+                    result = a * b;
+                    break;
+                case "/":
+                    result = b === 0 ? NaN : a / b;
+                    break;
+                case "%":
+                    result = b === 0 ? NaN : a % b;
+                    break;
+            }
+
+            current = Number.isFinite(result)
+                ? String(Number(result.toPrecision(12)))
+                : "Error";
+
+            previous = null;
+            operator = null;
+            resetDisplay = true;
+            updateDisplay();
+        }
+
+        function clearDisplay() {
+            current = "0";
+            previous = null;
+            operator = null;
+            resetDisplay = false;
+            updateDisplay();
+        }
+
+        function deleteLast() {
+            if (resetDisplay || current === "Error") {
+                current = "0";
+                resetDisplay = false;
+            } else {
+                current = current.length > 1
+                    ? current.slice(0, -1)
+                    : "0";
+            }
+            updateDisplay();
+        }
+
+        function toggleSign() {
+            if (current !== "0" && current !== "Error") {
+                current = String(-Number(current));
+                updateDisplay();
+            }
+        }
+    </script>
+
+</body>
+</html>
